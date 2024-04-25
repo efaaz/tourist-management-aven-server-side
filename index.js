@@ -1,9 +1,12 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
+
+
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion , ObjectId } = require('mongodb');
+
 
 
 //  middleware 
@@ -39,20 +42,24 @@ async function run() {
 
     app.post('/user', async (req, res) => {
         const userInfo = req.body;
-        console.log(userInfo);
+        // console.log(userInfo);
         const result = await userCollection.insertOne(userInfo);
         res.send(result);
     });
 
     app.patch('/user', async (req, res) => {
         const user = req.body;
+        console.log(user);
         const filter = { email: user.email }
         const updateDoc = {
             $set: {
+
+                email: user.email,
+                createdAt: user.creationTime,
                 lastLoggedAt: user.lastLoggedAt
             }
         }
-        const result = await userCollection.updateOne(filter, updateDoc);
+        const result = await userCollection.updateOne(filter, updateDoc, { upsert: true });
         res.send(result);
     })
 
