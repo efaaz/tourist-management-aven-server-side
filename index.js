@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion , ObjectId } = require('mongodb');
 
 
 //  middleware 
@@ -25,14 +25,53 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    // const UserCollection = client.db('coffeeDB').collection('coffee');
+    const userCollection = client.db('tourism').collection('user');
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    // user related apis
+    app.get('/user', async (req, res) => {
+        const cursor = userCollection.find();
+        const users = await cursor.toArray();
+        res.send(users);
+    })
+
+    app.post('/user', async (req, res) => {
+        const userInfo = req.body;
+        console.log(userInfo);
+        const result = await userCollection.insertOne(userInfo);
+        res.send(result);
+    });
+
+    app.patch('/user', async (req, res) => {
+        const user = req.body;
+        const filter = { email: user.email }
+        const updateDoc = {
+            $set: {
+                lastLoggedAt: user.lastLoggedAt
+            }
+        }
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+    })
+
+
+
+
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
