@@ -26,14 +26,16 @@ async function run() {
     const userCollection = client.db("tourism").collection("user");
     const spotCollection = client.db("tourism").collection("spotSection");
     const countryCollection = client.db("tourism").collection("countrySection");
-    const everySixspotsCollection = client.db("tourism").collection("everySixspotsCollection");
+    const everySixspotsCollection = client
+      .db("tourism")
+      .collection("everySixspotsCollection");
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-
-    app.post("/countries", async (req, res) => {
-      const userInfo = req.body;
-      const result = await countryCollection.insertMany(userInfo);
-      res.send(result);
+    // get all countries
+    app.get("/countries", async (req, res) => {
+      const cursor = countryCollection.find();
+      const users = await cursor.toArray();
+      res.send(users);
     });
     app.post("/spots", async (req, res) => {
       const userInfo = req.body;
@@ -58,12 +60,10 @@ async function run() {
 
     // Route to get all users with a specific email
     app.get("/spots/user/:email", async (req, res) => {
-      
-        const email = req.params.email; // Get the email from URL parameters
-        const query = { email: email }; // Filter documents with this email
-        const users = await spotCollection.find(query).toArray(); // Fetch matching documents
-        res.send(users); // Send the matching documents as the response
-      
+      const email = req.params.email; // Get the email from URL parameters
+      const query = { email: email }; // Filter documents with this email
+      const users = await spotCollection.find(query).toArray(); // Fetch matching documents
+      res.send(users); // Send the matching documents as the response
     });
 
     // user related apis
