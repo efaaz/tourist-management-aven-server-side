@@ -32,7 +32,7 @@ async function run() {
 
     app.post("/countries", async (req, res) => {
       const userInfo = req.body;
-      const result = await everySixspotsCollection.insertMany(userInfo);
+      const result = await countryCollection.insertMany(userInfo);
       res.send(result);
     });
     app.post("/spots", async (req, res) => {
