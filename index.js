@@ -69,13 +69,12 @@ async function run() {
       const uniqueCountriesData = await spotsCollection.aggregate([
         {
           $group: {
-            _id: "$country_name",
-            firstSpot: { $first: "$$ROOT" }, // Get the first document from each group
-            count: { $sum: 1 }, // Optional: Count the number of spots in each group
+            _id: "$country_name", // Group by country_name to get unique countries
+            firstSpot: { $first: "$$ROOT" }, // Get the first document in each group
           },
         },
         {
-          $replaceWith: "$firstSpot", // Replace the group with the first document
+          $replaceWith: "$firstSpot", // Use the first document as the output
         },
       ]).toArray();
   
