@@ -16,7 +16,6 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
-    strict: true,
     deprecationErrors: true,
   },
 });
@@ -25,15 +24,20 @@ async function run() {
   try {
     const userCollection = client.db("tourism").collection("user");
     const spotCollection = client.db("tourism").collection("spotSection");
+    const spotsCollection = client.db("tourism").collection("spotsSection");
     const countryCollection = client.db("tourism").collection("countrySection");
-    const everySixspotsCollection = client
-      .db("tourism")
-      .collection("everySixspotsCollection");
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // get all countries
     app.get("/countries", async (req, res) => {
       const cursor = countryCollection.find();
+      const users = await cursor.toArray();
+      res.send(users);
+    });
+
+    // get all tourist spots
+    app.get("/all/spots", async (req, res) => {
+      const cursor = spotsCollection.find();
       const users = await cursor.toArray();
       res.send(users);
     });
@@ -44,11 +48,54 @@ async function run() {
       res.send(result);
     });
 
-    // get tourist spots
+    // temporarily
+    app.post("/spotss", async (req, res) => {
+      const userInfo = req.body;
+      const result = await spotsCollection.insertMany(userInfo);
+      res.send(result);
+    });
+
+
+
+    app.get("/spots/unique", async (req, res) => {
+      const uniqueCountriesData = await spotsCollection.aggregate([
+        {
+          $group: {
+            _id: "$country_name",
+            firstSpot: { $first: "$$ROOT" }, // Get the first document from each group
+            count: { $sum: 1 }, // Optional: Count the number of spots in each group
+          },
+        },
+        {
+          $replaceWith: "$firstSpot", // Replace the group with the first document
+        },
+      ]).toArray();
+  
+      res.send(uniqueCountriesData); // Send the unique data
+
+
+    })
+
+
+
+
+    // get 6 tourist spots
     app.get("/spots", async (req, res) => {
-      const cursor = spotCollection.find();
-      const users = await cursor.toArray();
-      res.send(users);
+      const uniqueCountriesData = await spotsCollection.aggregate([
+        {
+          $group: {
+            _id: "$country_name",
+            firstSpot: { $first: "$$ROOT" }, // Get the first document from each group
+            count: { $sum: 1 }, // Optional: Count the number of spots in each group
+          },
+        },
+        {
+          $replaceWith: "$firstSpot", // Replace the group with the first document
+        },
+      ]).toArray();
+  
+      res.send(uniqueCountriesData); // Send the unique data
+
     });
 
     app.get("/spots/:id", async (req, res) => {
