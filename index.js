@@ -35,16 +35,26 @@ async function run() {
       res.send(users);
     });
 
+    // get all tourist spots of specified country
+    app.get("/:country", async (req, res,) =>{
+      const country = req.params.country
+      const query = { country_name: country };
+      const users = await spotsCollection.find(query).toArray(); // Fetch matching documents
+      res.send(users); // Send the matching documents as the response
+
+    });
+
     // get all tourist spots
     app.get("/all/spots", async (req, res) => {
       const cursor = spotsCollection.find();
       const users = await cursor.toArray();
       res.send(users);
     });
-    app.post("/spots", async (req, res) => {
+    // add tourist spot
+    app.post("/all/spots", async (req, res) => {
       const userInfo = req.body;
       console.log(userInfo);
-      const result = await spotCollection.insertOne(userInfo);
+      const result = await spotsCollection.insertOne(userInfo);
       res.send(result);
     });
 
@@ -54,9 +64,7 @@ async function run() {
       const result = await spotsCollection.insertMany(userInfo);
       res.send(result);
     });
-
-
-
+    // get 6 tourist spots
     app.get("/spots/unique", async (req, res) => {
       const uniqueCountriesData = await spotsCollection.aggregate([
         {
@@ -76,32 +84,11 @@ async function run() {
 
     })
 
-
-
-
-    // get 6 tourist spots
-    app.get("/spots", async (req, res) => {
-      const uniqueCountriesData = await spotsCollection.aggregate([
-        {
-          $group: {
-            _id: "$country_name",
-            firstSpot: { $first: "$$ROOT" }, // Get the first document from each group
-            count: { $sum: 1 }, // Optional: Count the number of spots in each group
-          },
-        },
-        {
-          $replaceWith: "$firstSpot", // Replace the group with the first document
-        },
-      ]).toArray();
-  
-      res.send(uniqueCountriesData); // Send the unique data
-
-    });
-
+    // view details
     app.get("/spots/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const result = await spotCollection.findOne(query);
+      const result = await spotsCollection.findOne(query);
       res.send(result);
     });
 
@@ -109,7 +96,7 @@ async function run() {
     app.get("/spots/user/:email", async (req, res) => {
       const email = req.params.email; // Get the email from URL parameters
       const query = { email: email }; // Filter documents with this email
-      const users = await spotCollection.find(query).toArray(); // Fetch matching documents
+      const users = await spotsCollection.find(query).toArray(); // Fetch matching documents
       res.send(users); // Send the matching documents as the response
     });
 
@@ -136,7 +123,7 @@ async function run() {
                 }
             }
 
-            const result = await spotCollection.updateOne(filter, updatedInfo, options);
+            const result = await spotsCollection.updateOne(filter, updatedInfo, options);
             res.send(result);
         })
 
@@ -144,7 +131,7 @@ async function run() {
     app.delete('/spots/delete/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
-      const result = await spotCollection.deleteOne(query);
+      const result = await spotsCollection.deleteOne(query);
       res.send(result);
   })
 
