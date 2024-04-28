@@ -67,27 +67,31 @@ async function run() {
     });
 
 
-    app.put('/spots/update/:id', async(req, res) => {
-      const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
-      const options = { upsert: true };
-      const updatedSpot = req.body;
+    app.put(`/spots/update/:id`, async(req, res) => {
+            const id = req.params.id;
+            const user = req.body;
+            const filter = {_id: new ObjectId(id)}
+            const options = { upsert: true };
 
-      const spot = {
-          $set: {
-              name: updatedSpot.name, 
-              quantity: updatedSpot.quantity, 
-              supplier: updatedSpot.supplier, 
-              taste: updatedSpot.taste, 
-              category: updatedSpot.category, 
-              details: updatedSpot.details, 
-              photo: updatedSpot.photo
-          }
-      }
+            const updatedInfo = {
+                $set: {
+                  name: user.username,
+                  email: user.useremail,
+                  totaVisitorsPerYear: user.visitorCount,
+                  country_Name: user.country,
+                  tourists_spot_name: user.SpotName,
+                  average_cost: user.cost,
+                  image: user.img,
+                  travel_time: user.time,
+                  location: user.area,
+                  seasonality: user.season,
+                  short_description: user.description,
+                }
+            }
 
-      const result = await spotCollection.updateOne(filter, spot, options);
-      res.send(result);
-  })
+            const result = await spotCollection.updateOne(filter, updatedInfo, options);
+            res.send(result);
+        })
 
 
     app.delete('/spots/delete/:id', async (req, res) => {
@@ -118,18 +122,10 @@ async function run() {
       const filter = { email: user.email };
       const updateDoc = {
         $set: {
-          name: user.username,
-          email: user.useremail,
-          totaVisitorsPerYear: user.visitorCount,
-          country_Name: user.country,
-          tourists_spot_name: user.SpotName,
-          average_cost: user.cost,
-          image: user.img,
-          travel_time: user.time,
-          location: user.area,
-          seasonality: user.season,
-          short_description: user.description,
-          },
+          email: user.email,
+          createdAt: user.creationTime,
+          lastLoggedAt: user.lastLoggedAt,
+        },
       };
       const result = await userCollection.updateOne(filter, updateDoc, {
         upsert: true,
