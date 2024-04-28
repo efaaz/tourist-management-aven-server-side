@@ -7,8 +7,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //  middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow requests from this origin
+  })
+);
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.p9odpl5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
