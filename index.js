@@ -11,8 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173", 
-    origin: "https://avenn.netlify.app", 
+    origin:[ "http://localhost:5173" , "https://avenn.netlify.app" ] 
+
   })
 );
 
@@ -28,8 +28,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const userCollection = client.db("tourism").collection("user");
-    const spotCollection = client.db("tourism").collection("spotSection");
+    const userCollection = client.db("tourism").collection("user"); 
     const spotsCollection = client.db("tourism").collection("spotsSection");
     const countryCollection = client.db("tourism").collection("countrySection");
     // Connect the client to the server	(optional starting in v4.7)
@@ -173,7 +172,6 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
