@@ -31,8 +31,6 @@ async function run() {
     const userCollection = client.db("tourism").collection("user"); 
     const spotsCollection = client.db("tourism").collection("spotsSection");
     const countryCollection = client.db("tourism").collection("countrySection");
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
     // get all countries
     app.get("/countries", async (req, res) => {
       const cursor = countryCollection.find();
